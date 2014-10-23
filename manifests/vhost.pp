@@ -67,7 +67,6 @@ define phpmyadmin::vhost (
   validate_bool($vhost_enabled)
   validate_string($priority)
   validate_absolute_path($docroot)
-  validate_string($aliases)
   validate_string($vhost_name)
   validate_bool($ssl)
   validate_bool($ssl_redirect)
