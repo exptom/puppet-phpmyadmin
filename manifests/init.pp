@@ -67,7 +67,7 @@ class phpmyadmin (
 
   $enabledt = str2bool($enabled)
   #Define present/absent for enabled state (true/false)
-  $state_select = $enabledt ? {
+  $state_select = $enabled ? {
     true    => 'present',
     default => 'absent',
   }
