@@ -178,7 +178,7 @@ define phpmyadmin::vhost (
     ssl_ca          	 => $ssl_apache_ca,
     ssl_honorcipherorder => 'On',
     ssl_protocol         => $ssl_protocol,
-    ssl_ciper            => $ssl_cipher,
+    ssl_cipher            => $ssl_cipher,
   }
 
 }
