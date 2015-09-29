@@ -26,14 +26,19 @@
 #   The contents of an SSL cert to use in SSL mode
 # [*ssl_key*]
 #   The contents of an SSL key to use in SSL mode
+# [*ssl_ca*]
+#   The contents of an SSL CA to use in SSL mode (default: undef)
 # [*ssl_cert_file*]
 #   The filepath to use as the SSL cert
 # [*ssl_key_file*]
 #   The filepath to use as the SSL key
+# [*ssl_ca_file*]
+#   The filepath to use as the SSL CA (default: undef)
 # [*ssl_protocol*]
 #   The SSL protocols to enable
 # [*ssl_cipher*]
 #   The ssl cipers to use
+#
 # === Examples
 #
 #  phpmyadmin::vhost { 'phpmyadmin.domain.com':
@@ -60,8 +65,10 @@ define phpmyadmin::vhost (
   $ssl_redirect    = false,
   $ssl_cert        = '',
   $ssl_key         = '',
+  $ssl_ca          = undef,
   $ssl_cert_file   = '',
   $ssl_key_file    = '',
+  $ssl_ca_file     = undef,
   $ssl_protocol    = 'ALL -SSLv2 -SSLv3',
   $ssl_cipher      = 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS',
   $conf_dir        = $::apache::params::conf_dir,
@@ -113,6 +120,21 @@ define phpmyadmin::vhost (
         $ssl_apache_key = $ssl_key_file
       }
 
+      if $ssl_ca != undef {
+        file { "${conf_dir}/phpmyadmin_${vhost_name}-ca.crt":
+          ensure => $ensure,
+          mode   => '0644',
+          source => $ssl_ca,
+        }
+        $ssl_apache_ca = "${conf_dir}/phpmyadmin_${vhost_name}-ca.crt"
+      } else {
+        if $ssl_ca_file != undef {
+          $ssl_apache_ca = $ssl_ca_file
+        } else {
+          $ssl_apache_ca = undef
+        }
+      }
+
       if $ssl_redirect == true {
         apache::vhost { "${vhost_name}-http":
           ensure        => $ensure,
@@ -137,6 +159,7 @@ define phpmyadmin::vhost (
       #No SSL cert/key define
       $ssl_apache_cert = undef
       $ssl_apache_key  = undef
+      $ssl_apache_ca   = undef
     }
   }
 
@@ -152,6 +175,7 @@ define phpmyadmin::vhost (
     custom_fragment      => template('phpmyadmin/apache/phpmyadmin_fragment.erb'),
     ssl_cert             => $ssl_apache_cert,
     ssl_key              => $ssl_apache_key,
+    ssl_ca          	 => $ssl_apache_ca,
     ssl_honorcipherorder => 'On',
     ssl_protocol         => $ssl_protocol,
     ssl_ciper            => $ssl_cipher,
