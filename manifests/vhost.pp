@@ -16,11 +16,12 @@
 #   Allows you to set an alias for the phpmyadmin vhost, or to have an array of alias entries
 # [*vhost_name*]
 #   You can set a name for the vhost entry. This defaults to phpdb.$::domain
+# [*options*]
+#  Allows the default directory options to be overriden
 # [*ssl*]
 #   Enable SSL support for the vhost. If enabled we disable phpmyadmin on port 80.
 # [*ssl_redirect*]
 #   If true, redirects 80 -> 443 (default: false)
-#
 # [*ssl_cert*]
 #   The contents of an SSL cert to use in SSL mode
 # [*ssl_key*]
@@ -51,6 +52,7 @@ define phpmyadmin::vhost (
   $docroot         = $::phpmyadmin::params::doc_path,
   $aliases         = '',
   $vhost_name      = $name,
+  $options         = ['Indexes','FollowSymLinks','MultiViews'],
   $ssl             = false,
   $ssl_redirect    = false,
   $ssl_cert        = '',
@@ -112,6 +114,7 @@ define phpmyadmin::vhost (
           port          => 80,
           servername    => $vhost_name,
           serveraliases => $aliases,
+          options       => $options,
           rewrites      => [{
             comment      => 'Redirect to HTTPS',
             rewrite_cond => ['%{HTTPS} off'],
@@ -137,6 +140,7 @@ define phpmyadmin::vhost (
     priority        => $priority,
     port            => $port,
     serveraliases   => $aliases,
+    options         => $options,
     ssl             => $ssl,
     custom_fragment => template('phpmyadmin/apache/phpmyadmin_fragment.erb'),
     ssl_cert        => $ssl_apache_cert,
