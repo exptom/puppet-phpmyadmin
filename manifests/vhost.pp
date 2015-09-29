@@ -154,7 +154,7 @@ define phpmyadmin::vhost (
     ssl_key              => $ssl_apache_key,
     ssl_honorcipherorder => 'On',
     ssl_protocol         => $ssl_protocol,
-    ssl_ciper            => $ssl_cipher,
+    ssl_cipher            => $ssl_cipher,
   }
 
 }
