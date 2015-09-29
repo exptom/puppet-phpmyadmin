@@ -30,7 +30,10 @@
 #   The filepath to use as the SSL cert
 # [*ssl_key_file*]
 #   The filepath to use as the SSL key
-#
+# [*ssl_protocol*]
+#   The SSL protocols to enable
+# [*ssl_cipher*]
+#   The ssl cipers to use
 # === Examples
 #
 #  phpmyadmin::vhost { 'phpmyadmin.domain.com':
@@ -59,6 +62,8 @@ define phpmyadmin::vhost (
   $ssl_key         = '',
   $ssl_cert_file   = '',
   $ssl_key_file    = '',
+  $ssl_protocol    = 'ALL -SSLv2 -SSLv3',
+  $ssl_cipher      = 'ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS',
   $conf_dir        = $::apache::params::conf_dir,
   $conf_dir_enable = $::phpmyadmin::params::site_enable_dir,
 ) {
@@ -74,6 +79,8 @@ define phpmyadmin::vhost (
   validate_bool($ssl_redirect)
   validate_string($ssl_cert)
   validate_string($ssl_key)
+  validate_string($ssl_protocol)
+  validate_string($ssl_cipher)
   validate_absolute_path($conf_dir)
   validate_absolute_path($conf_dir_enable)
 
@@ -135,16 +142,19 @@ define phpmyadmin::vhost (
 
   #Creates a basic vhost entry for apache
   apache::vhost { $vhost_name:
-    ensure          => $ensure,
-    docroot         => $docroot,
-    priority        => $priority,
-    port            => $port,
-    serveraliases   => $aliases,
-    options         => $options,
-    ssl             => $ssl,
-    custom_fragment => template('phpmyadmin/apache/phpmyadmin_fragment.erb'),
-    ssl_cert        => $ssl_apache_cert,
-    ssl_key         => $ssl_apache_key,
+    ensure               => $ensure,
+    docroot              => $docroot,
+    priority             => $priority,
+    port                 => $port,
+    serveraliases        => $aliases,
+    options              => $options,
+    ssl                  => $ssl,
+    custom_fragment      => template('phpmyadmin/apache/phpmyadmin_fragment.erb'),
+    ssl_cert             => $ssl_apache_cert,
+    ssl_key              => $ssl_apache_key,
+    ssl_honorcipherorder => 'On',
+    ssl_protocol         => $ssl_protocol,
+    ssl_ciper            => $ssl_cipher,
   }
 
 }
