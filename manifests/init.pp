@@ -55,14 +55,6 @@ class phpmyadmin (
       mpm_module => 'prefork',
     }
     include ::apache::mod::php
-
-    #Default/basic apache config file for phpMyAdmin
-    file { $apache_default_config:
-      ensure  => $state_select,
-      content => template('phpmyadmin/phpMyAdmin.conf.erb'),
-      require => Package[$package_name],
-      notify  => Service[$apache_name],
-    }
   }
 
   $enabledt = str2bool($enabled)
@@ -83,4 +75,12 @@ class phpmyadmin (
 
   #Install or remove package based on enable status
   ensure_packages([$package_name], { ensure => $state_select })
+
+  #Default/basic apache config file for phpMyAdmin
+  file { $apache_default_config:
+    ensure  => $state_select,
+    content => template('phpmyadmin/phpMyAdmin.conf.erb'),
+    require => Package[$package_name],
+    notify  => Service[$apache_name],
+  }
 }
